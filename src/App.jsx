@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext } from 'react'
 import List from './List'
 import "./style.css"
 import Modal from './Modal'
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import $ from "jquery";
-import * as bootstrap from 'bootstrap';
-// window.bootstrap = bootstrap;
+// import $ from "jquery";
+// import * as bootstrap from 'bootstrap';
 
+const mycontext = createContext();
 
 
 const App = () => {
@@ -25,6 +25,7 @@ const App = () => {
     const [edited, editedData] = useState(null);
     const [showData, setshowData] = useState("All");
     const [printData, setprintData] = useState([]);
+    const [mymodal, setModal] = useState(false);
 
     useEffect(() => {
         localStorage.setItem("taskData", JSON.stringify(item));
@@ -61,6 +62,7 @@ const App = () => {
             addFail();
         }
         else if (update == true) {
+            setModal(false);
             setItem(
                 item.map((val) => {
                     if (val.id == edited.id) {
@@ -83,7 +85,7 @@ const App = () => {
 
         }
         else {
-
+            // setModal(false);
             let taskTime = new Date();
             let fulltime = taskTime.toLocaleTimeString();
             let fullDate = taskTime.toLocaleDateString();
@@ -116,6 +118,7 @@ const App = () => {
         let upData = item.find((val) => val.id == id);
 
         setUpdate(true);
+        setModal(true);
         editedData(upData);
         setData({
             task: upData.task,
@@ -163,7 +166,7 @@ const App = () => {
                 <div className="row mt-4">
                     <div className="col-8 mx-auto">
                         <div className="d-flex justify-content-between">
-                            <button type="button" className="btn btn-add px-4" data-bs-toggle="modal" data-bs-target="#myModal">
+                            <button type="button" className="btn btn-add px-4" data-bs-toggle="modal" data-bs-target="#myModal" onClick={() => setModal(false)}>
                                 Add Task
                             </button>
 
@@ -183,7 +186,7 @@ const App = () => {
                                     return (
                                         <>
                                             <div className="col-12 px-3 pt-3" key={index}>
-                                                <div className="d-flex flex-row bg-light px-3 py-2 task-border">
+                                                {/* <div className="d-flex flex-row bg-light px-3 py-2 task-border">
                                                     <div className="col-6 align-self-center">
                                                         <div className="d-flex align-items-center">
                                                             <div>
@@ -205,7 +208,8 @@ const App = () => {
                                                             </button>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> */}
+                                                <List data={data} deleteItem={deleteItem} updateItem={updateItem} chachboxHandle={chachboxHandle} />
                                             </div>
                                         </>
                                     )
@@ -218,12 +222,15 @@ const App = () => {
                 </div>
             </div>
 
+            <mycontext.Provider value={[update, mymodal, data, setData]}>
+                <Modal key={1} changeHandle={changeHandle} addTask={addTask} />
+            </mycontext.Provider >
             {/* <Modal /> */}
-            <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="task-detailModalLabel" aria-hidden="true">
+            {/* <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="task-detailModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered position-relative">
                     <div className="modal-content modal-bg">
                         <div className="modal-header border-0">
-                            <h5 className="modal-title" id="task-detailModalLabel">Add TODO</h5>
+                            <h5 className="modal-title" id="task-detailModalLabel">{(update && mymodal) ? "Edit TODO" : "Add TODO"}</h5>
                             <button type="button" className="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
@@ -242,14 +249,15 @@ const App = () => {
                             </form>
                         </div>
                         <div className="modal-footer border-0 me-auto">
-                            <button type="button" className="btn btn-add px-3" id="task-added" data-bs-dismiss={(data.task == "") ? "" : "modal"} onClick={addTask}>Add Task</button>
+                            <button type="button" className="btn btn-add px-3" id="task-added" data-bs-dismiss={(data.task == "") ? "" : "modal"} onClick={addTask}>{(update && mymodal) ? "Edit Task" : "Add Task"}</button>
                             <button type="button" className="btn btn-cancel px-3 ms-2" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </div>
                 </div>
-            </div >
+            </div > */}
         </>
     )
 }
 
 export default App
+export { mycontext }
